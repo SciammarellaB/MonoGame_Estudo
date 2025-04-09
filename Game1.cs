@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Projeto_1
@@ -11,7 +12,7 @@ namespace Projeto_1
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        Sprite _sprite;
+        List<GameObject> _sprites;
 
         public Game1()
         {
@@ -30,9 +31,17 @@ namespace Projeto_1
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             // TODO: use this.Content to load your game content here
-            
-            Texture2D texture = Content.Load<Texture2D>("frog");
-            _sprite = new Sprite(texture, new Rectangle(100, 100, 64, 64));
+            _sprites = new();
+                        
+            Texture2D playerTexture = Content.Load<Texture2D>("frog");
+            Texture2D bloco = Content.Load<Texture2D>("Bloco");
+
+            var _bloco = new GameObject(bloco, new Vector2(640, 320), _sprites);
+            _bloco.Locked = true;
+            _sprites.Add(_bloco);
+
+            var _player = new Player(playerTexture, new Vector2(540, 0), _sprites);
+            _sprites.Add(_player);
         }
 
         protected override void Update(GameTime gameTime)
@@ -42,19 +51,10 @@ namespace Projeto_1
 
             // TODO: Add your update logic here
 
-            //USER INPUTS
-            //KEYBOARD
-            if (Keyboard.GetState().IsKeyDown(Keys.W))
-            {
-                Debug.WriteLine("AAA");
+            foreach (var sprite in _sprites)
+            { 
+                sprite.Update(gameTime);
             }
-            
-            //MOUSE
-            if(Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                Debug.WriteLine("BBB");
-            }
-            
 
             base.Update(gameTime);
         }
@@ -66,7 +66,10 @@ namespace Projeto_1
             // TODO: Add your drawing code here
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-            _spriteBatch.Draw(_sprite.Texture, _sprite.Rect, Color.White);
+            foreach (var sprite in _sprites)
+            {
+                sprite.Draw(_spriteBatch);
+            }
             
             _spriteBatch.End();
 
