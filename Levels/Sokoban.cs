@@ -1,20 +1,21 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
+using Projeto_1.Core;
+using Projeto_1.Objects;
 using System.Collections.Generic;
-using System.Diagnostics;
 
-namespace Projeto_1
+namespace Projeto_1.Levels
 {
-    public class Game1 : Game
+    public class Sokoban : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        List<GameObject> _sprites;
+        List<GameObject> _gameObjects;
+        Player _player;
 
-        public Game1()
+        public Sokoban()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -31,17 +32,18 @@ namespace Projeto_1
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             // TODO: use this.Content to load your game content here
-            _sprites = new();
-                        
+            _gameObjects = new();
+
             Texture2D playerTexture = Content.Load<Texture2D>("frog");
             Texture2D bloco = Content.Load<Texture2D>("Bloco");
 
-            var _bloco = new GameObject(bloco, new Vector2(640, 320), _sprites);
-            _bloco.Locked = true;
-            _sprites.Add(_bloco);
+            //PLAYER
+            _player = new Player(new Vector2(100, 100), new Vector2(0.5f, 0.5f), playerTexture);
 
-            var _player = new Player(playerTexture, new Vector2(540, 0), _sprites);
-            _sprites.Add(_player);
+            //var _bloco = new GameObject(bloco, new Vector2(640, 320), _gameObjects);
+            //_bloco.Locked = true;
+            //_gameObjects.Add(_bloco);
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -51,10 +53,11 @@ namespace Projeto_1
 
             // TODO: Add your update logic here
 
-            foreach (var sprite in _sprites)
-            { 
-                sprite.Update(gameTime);
-            }
+            //PLAYER
+            _player.Update(gameTime);
+
+            foreach (var gameObject in _gameObjects)
+                gameObject.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -66,11 +69,13 @@ namespace Projeto_1
             // TODO: Add your drawing code here
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-            foreach (var sprite in _sprites)
-            {
-                sprite.Draw(_spriteBatch);
-            }
-            
+            //PLAYER
+            _player.Sprite.Draw(_spriteBatch);
+
+            //OBJETOS
+            //foreach (var gameObject in _gameObjects)
+            //    gameObject.Sprite.Draw(_spriteBatch);
+
             _spriteBatch.End();
 
             base.Draw(gameTime);

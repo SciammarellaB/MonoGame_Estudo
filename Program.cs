@@ -1,2 +1,2 @@
-﻿using var game = new Projeto_1.Game1();
+﻿using var game = new Projeto_1.Levels.Sokoban();
 game.Run();
