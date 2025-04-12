@@ -16,7 +16,7 @@ public class Player : GameObject
         Transform = new Transform();
         Sprite = new Sprite();
 
-        Velocidade = 2;
+        Velocidade = 10;
     }
 
     public Player(Vector2 position, Texture2D texture) : this()
