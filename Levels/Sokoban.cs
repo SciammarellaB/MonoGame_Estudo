@@ -6,82 +6,45 @@ using Projeto_1.Objects;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static Projeto_1.Core.Resources;
 
 namespace Projeto_1.Levels
 {
     public class Sokoban : Game
     {
+        #region CORE
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        #endregion
 
+        int tileSize = 64;
+
+        #region OBJETOS
         Player _player;
         Block _box;
 
-        private Dictionary<Vector2, int> tileMap;
+        Dictionary<Vector2, int> tileMap;
+        List<Rectangle> textureStore;
         List<Block> _mapBlock;
+        #endregion
 
-        //TEXTURES
+        #region TEXTURES
+        Texture2D atlasTexture;
         Texture2D playerTexture;
-        Texture2D grassBlock;
-        Texture2D waterBlock;
-        Texture2D boxBlock;
+        #endregion
 
         public Sokoban()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-        }
 
-        private Dictionary<Vector2, int> LoadMap(string filePath)
-        {
-            Dictionary<Vector2, int> result = new();
-            StreamReader reader = new(filePath);
-
-            int y = 0;
-            string line;
-            while ((line = reader.ReadLine()) != null)
+            textureStore = new()
             {
-                string[] items = line.Split(',');
-                for (int x = 0; x < items.Length; x++)
-                {
-                    if(int.TryParse(items[x], out int value))
-                    {
-                        if (value > 0)
-                        {
-                            result[new Vector2(x, y)] = value;
-                        }
-                    }
-                }
-
-                y++;
-            }
-
-            return result;
-        }
-
-        private void DrawMap()
-        {
-            foreach(var mapTile in tileMap)
-            {
-                switch (mapTile.Value)
-                {
-                    case 1:
-                        var _waterBlock = new Block(new Vector2(mapTile.Key.X * waterBlock.Width * 4, mapTile.Key.Y * waterBlock.Height * 4), new Vector2(4, 4), waterBlock);
-                        _mapBlock.Add(_waterBlock);
-                        break;
-                    case 2:
-                        var _grassTile = new Block(new Vector2(mapTile.Key.X * grassBlock.Width * 4, mapTile.Key.Y * grassBlock.Height * 4), new Vector2(4, 4), grassBlock);
-                        _mapBlock.Add(_grassTile);
-                        break;
-                    case 3:
-                        var _boxTile = new Block(new Vector2(mapTile.Key.X * boxBlock.Width * 4, mapTile.Key.Y * boxBlock.Height * 4), new Vector2(4, 4), boxBlock);
-                        _mapBlock.Add(_boxTile);
-                        break;
-                    default:
-                        throw new System.Exception("Tile not found");
-                }
-            }
+                new Rectangle(0, 0, 16, 16),
+                new Rectangle(16, 0, 16, 16),
+                new Rectangle(32, 0, 16, 16)
+            };
         }
 
         protected override void Initialize()
@@ -104,21 +67,30 @@ namespace Projeto_1.Levels
             return tileMap.FirstOrDefault(a => a.Key.X == x && a.Key.Y == y).Value;
         }
 
+        private void LoadMap()
+        {
+            foreach (var mapTile in tileMap)
+            {
+                var texture = textureStore[mapTile.Value - 1];
+                var sprite = new Sprite(atlasTexture, new Vector2(mapTile.Key.X * tileSize, mapTile.Key.Y * tileSize), texture, new Vector2(64, 64));
+                var _block = new Block(new Vector2(mapTile.Key.X * tileSize, mapTile.Key.Y * tileSize), new Vector2(1, 1), sprite);
+                _mapBlock.Add(_block);
+            }
+        }
+
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             // TODO: use this.Content to load your game content here
 
             //TEXTURAS
+            atlasTexture = Content.Load<Texture2D>("Sokoban_Sprite_Atlas");
             playerTexture = Content.Load<Texture2D>("BoxBlock1");
-            grassBlock = Content.Load<Texture2D>("GrassBlock1");
-            waterBlock = Content.Load<Texture2D>("WaterBlock1");
-            boxBlock = Content.Load<Texture2D>("BoxBlock1");
 
             //MAP
-            tileMap = LoadMap("../../../Levels/Map1.csv");
+            tileMap = LoadSpriteAtlas("../../../Levels/Map1.csv");
             _mapBlock = new();
-            DrawMap();
+            LoadMap();
 
             //PLAYER
             _player = new Player(new Vector2(0, 0), new Vector2(4, 4), playerTexture);
@@ -135,6 +107,11 @@ namespace Projeto_1.Levels
             //PLAYER
             _player.Update(gameTime);
 
+            foreach(var block in _mapBlock)
+            {
+                block.Update(gameTime);
+            }
+
             base.Update(gameTime);
         }
 
@@ -146,13 +123,11 @@ namespace Projeto_1.Levels
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             //MAPA
-            foreach (var block in _mapBlock)
-            {
+            foreach(var block in _mapBlock)
                 block.Sprite.Draw(_spriteBatch);
-            }
 
             //PLAYER
-            _player.Sprite.Draw(_spriteBatch);
+            //_player.Sprite.Draw(_spriteBatch);
 
             _spriteBatch.End();
 

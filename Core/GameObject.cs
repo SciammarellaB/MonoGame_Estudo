@@ -28,10 +28,10 @@ public class GameObject
 
     public virtual void Update(GameTime gameTime)
     {
-
+        UpdateCollisionBox(gameTime);
     }
 
-    public virtual void UpdateCollision(GameTime gameTime)
+    public virtual void UpdateCollisionBox(GameTime gameTime)
     {
         ColisionBox = new Rectangle((int)Transform.Position.X, (int)Transform.Position.Y, (int)Transform.Scale.X, (int)Transform.Scale.Y);
     }

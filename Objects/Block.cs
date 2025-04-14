@@ -18,18 +18,34 @@ public class Block : GameObject
         Velocidade = 10;
     }
 
-    public Block(Vector2 position, Texture2D texture) : this()
+    public Block(Vector2 position, Sprite sprite) : this()
     {
         Transform.Position = position;
         Transform.Scale = new Vector2(1, 1);
-        Sprite.Texture = texture;
-        Sprite.Position = Transform.Position;
-        Sprite.Scale = Transform.Scale;
+        Sprite = sprite;
     }
 
-    public Block(Vector2 position, Vector2 scale, Texture2D texture) : this(position, texture)
+    public Block(Vector2 position, Vector2 scale, Sprite sprite) : this(position, sprite)
     {
         Transform.Scale = scale;
-        Sprite.Scale = Transform.Scale;
     }
+
+    public override void Update(GameTime gameTime)
+    {
+        UpdateCollisionBox(gameTime);
+    }
+
+    public override void UpdateCollisionBox(GameTime gameTime)
+    {
+        ColisionBox = new Rectangle((int)Transform.Position.X, (int)Transform.Position.Y, (int)Transform.Scale.X * Sprite.Texture.Width, (int)Transform.Scale.Y * Sprite.Texture.Height);
+    }
+
+    //public void DrawCollisionBox(GraphicsDeviceManager graphics, SpriteBatch spriteBatch)
+    //{
+    //    var line = new Texture2D(graphics.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+    //    line.SetData(new[] { Color.White });
+
+    //    //spriteBatch.Draw(line, new Rectangle(ColisionBox.Left, ColisionBox.Top, ColisionBox.Right - ColisionBox.Left, 1), Color.Red);
+    //    spriteBatch.Draw(line, new Vector2(Transform.Position.X, Transform.Position.Y), Color.Red);
+    //}
 }

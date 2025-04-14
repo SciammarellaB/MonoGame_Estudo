@@ -9,6 +9,7 @@ public class Sprite
     public Texture2D Texture;
     public Vector2 Position;
     public Vector2 Scale;
+    public Rectangle Src;
 
     public Rectangle rect
     {
@@ -17,8 +18,8 @@ public class Sprite
             return new Rectangle(
                 (int)Position.X,
                 (int)Position.Y,
-                Convert.ToInt32(Texture.Width * Scale.X),
-                Convert.ToInt32(Texture.Height * Scale.Y)
+                (int)Scale.X,
+                (int)Scale.Y
             );
         }
     }
@@ -28,14 +29,15 @@ public class Sprite
 
     }
 
-    public Sprite(Texture2D texture, Vector2 position)
+    public Sprite(Texture2D texture, Vector2 position, Rectangle src)
     {
         Texture = texture;
         Position = position;
         Scale = new Vector2(1, 1);
+        Src = src;
     }
 
-    public Sprite(Texture2D texture, Vector2 position, Vector2 scale) : this(texture, position)
+    public Sprite(Texture2D texture, Vector2 position, Rectangle src, Vector2 scale) : this(texture, position, src)
     {
         Scale = scale;
     }
@@ -47,6 +49,6 @@ public class Sprite
 
     public virtual void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(Texture, rect, Color.White);
+        spriteBatch.Draw(Texture, rect, Src, Color.White);
     }
 }
