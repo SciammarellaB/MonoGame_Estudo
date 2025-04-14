@@ -6,7 +6,6 @@ namespace Projeto_1.Core;
 public class GameObject
 {
     public Transform Transform;
-    public Rectangle ColisionBox;
 
     public bool CanCollide;
 
@@ -28,11 +27,6 @@ public class GameObject
 
     public virtual void Update(GameTime gameTime)
     {
-        UpdateCollisionBox(gameTime);
-    }
-
-    public virtual void UpdateCollisionBox(GameTime gameTime)
-    {
-        ColisionBox = new Rectangle((int)Transform.Position.X, (int)Transform.Position.Y, (int)Transform.Scale.X, (int)Transform.Scale.Y);
+        
     }
 }

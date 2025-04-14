@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Input;
 using Projeto_1.Core;
 using Projeto_1.Objects;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using static Projeto_1.Core.Resources;
 
@@ -17,19 +16,24 @@ namespace Projeto_1.Levels
         private SpriteBatch _spriteBatch;
         #endregion
 
-        int tileSize = 64;
-
         #region OBJETOS
         Player _player;
         Block _box;
 
+        int displayTileSize = 64;
+        int textureTileSize = 16;
+        int textureTilesRow = 8;
+
         Dictionary<Vector2, int> tileMap;
-        List<Rectangle> textureStore;
         List<Block> _mapBlock;
+        
+        Dictionary<Vector2, int> collisionMap;
+
         #endregion
 
         #region TEXTURES
         Texture2D atlasTexture;
+        Texture2D collisionTexture;
         Texture2D playerTexture;
         #endregion
 
@@ -38,13 +42,6 @@ namespace Projeto_1.Levels
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-
-            textureStore = new()
-            {
-                new Rectangle(0, 0, 16, 16),
-                new Rectangle(16, 0, 16, 16),
-                new Rectangle(32, 0, 16, 16)
-            };
         }
 
         protected override void Initialize()
@@ -69,13 +66,78 @@ namespace Projeto_1.Levels
 
         private void LoadMap()
         {
-            foreach (var mapTile in tileMap)
+            foreach (var item in tileMap)
             {
-                var texture = textureStore[mapTile.Value - 1];
-                var sprite = new Sprite(atlasTexture, new Vector2(mapTile.Key.X * tileSize, mapTile.Key.Y * tileSize), texture, new Vector2(64, 64));
-                var _block = new Block(new Vector2(mapTile.Key.X * tileSize, mapTile.Key.Y * tileSize), new Vector2(1, 1), sprite);
+                Rectangle rect = new(
+                    (int)item.Key.X * displayTileSize,
+                    (int)item.Key.Y * displayTileSize,
+                    displayTileSize,
+                    displayTileSize
+                );
+
+                int x = item.Value % textureTilesRow;
+                int y = item.Value / textureTilesRow;
+
+                Rectangle src = new(
+                    x * textureTileSize,
+                    y * textureTileSize,
+                    textureTileSize,
+                    textureTileSize
+                );
+
+                var sprite = new Sprite(atlasTexture, rect, src);
+                var _block = new Block(new Vector2(item.Key.X * displayTileSize, item.Key.Y * displayTileSize), new Vector2(displayTileSize, displayTileSize), sprite);
                 _mapBlock.Add(_block);
             }
+        }
+
+        private void DebugMapCollision()
+        {
+            foreach(var item in collisionMap)
+            {
+                Rectangle rect = new(
+                    (int)item.Key.X * displayTileSize,
+                    (int)item.Key.Y * displayTileSize,
+                    displayTileSize,
+                    displayTileSize
+                );
+
+                int x = item.Value % textureTilesRow;
+                int y = item.Value / textureTilesRow;
+
+                Rectangle src = new(
+                    x * textureTileSize,
+                    y * textureTileSize,
+                    textureTileSize,
+                    textureTileSize
+                );
+
+                _spriteBatch.Draw(collisionTexture, rect, src, Color.White);
+            }
+        }
+
+        private void LoadPlayer()
+        {
+            Rectangle rect = new(
+                    0,
+                    0,
+                    displayTileSize,
+                    displayTileSize
+                );
+
+            int x = 0 % textureTilesRow;
+            int y = 0 / textureTilesRow;
+
+            Rectangle src = new(
+                x * textureTileSize,
+                y * textureTileSize,
+                textureTileSize,
+                textureTileSize
+            );
+
+            var sprite = new Sprite(playerTexture, rect, src);
+            _player = new Player(new Vector2(64 ,64), new Vector2(displayTileSize, displayTileSize), sprite);
+            _player.Velocidade = 64;
         }
 
         protected override void LoadContent()
@@ -85,16 +147,19 @@ namespace Projeto_1.Levels
 
             //TEXTURAS
             atlasTexture = Content.Load<Texture2D>("Sokoban_Sprite_Atlas");
-            playerTexture = Content.Load<Texture2D>("BoxBlock1");
+            collisionTexture = Content.Load<Texture2D>("Sokoban_Collision_Atlas");
+            playerTexture = Content.Load<Texture2D>("Sokoban_Player_SpriteSheet");
 
             //MAP
             tileMap = LoadSpriteAtlas("../../../Levels/Map1.csv");
             _mapBlock = new();
             LoadMap();
 
+            //COLLISION MAP
+            collisionMap = LoadSpriteAtlas("../../../Levels/Map1_Collision.csv");
+
             //PLAYER
-            _player = new Player(new Vector2(0, 0), new Vector2(4, 4), playerTexture);
-            _player.Velocidade = 64;
+            LoadPlayer();
         }
 
         protected override void Update(GameTime gameTime)
@@ -126,8 +191,10 @@ namespace Projeto_1.Levels
             foreach(var block in _mapBlock)
                 block.Sprite.Draw(_spriteBatch);
 
+            DebugMapCollision();
+
             //PLAYER
-            //_player.Sprite.Draw(_spriteBatch);
+            _player.Sprite.Draw(_spriteBatch);
 
             _spriteBatch.End();
 

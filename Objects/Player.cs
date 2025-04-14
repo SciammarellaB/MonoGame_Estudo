@@ -1,6 +1,5 @@
 ﻿using Projeto_1.Core;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Projeto_1.Objects;
@@ -20,32 +19,34 @@ public class Player : GameObject
         Sprite = new Sprite();
     }
 
-    public Player(Vector2 position, Texture2D texture) : this()
+    public Player(Vector2 position) : this()
     {
         Transform.Position = position;
         Transform.Scale = new Vector2(1, 1);
-        Sprite.Texture = texture;
-        Sprite.Position = Transform.Position;
-        Sprite.Scale = Transform.Scale;
     }
 
-    public Player(Vector2 position, Vector2 scale, Texture2D texture) : this(position, texture)
+    public Player(Vector2 position, Sprite sprite) : this(position)
+    {
+        Transform.Scale = new Vector2(1, 1);
+        Sprite = sprite;
+    }
+
+    public Player(Vector2 position, Vector2 scale, Sprite sprite) : this(position, sprite)
     {
         Transform.Scale = scale;
-        Sprite.Scale = Transform.Scale;
     }
 
-    public void Atualizacao()
+    public void UpdateSprite()
     {
-        Sprite.Position = Transform.Position;
-        Sprite.Scale = Transform.Scale;
+        Sprite.Rect.X = (int)Transform.Position.X;
+        Sprite.Rect.Y = (int)Transform.Position.Y;
     }
 
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
 
-        Atualizacao();
+        UpdateSprite();
 
         var velocidade = CanMove ? Velocidade : 0;
 
@@ -75,7 +76,7 @@ public class Player : GameObject
         //MOUSE
         if (Mouse.GetState().LeftButton == ButtonState.Pressed)
         {
-
+            
         }
     }
 }
