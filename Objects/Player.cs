@@ -1,22 +1,28 @@
 ﻿using Projeto_1.Core;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
+using static Projeto_1.Core.Resources;
 
 namespace Projeto_1.Objects;
 
 public class Player : GameObject
 {
-    public Sprite Sprite {  get; set; }
+    public Sprite Sprite { get; set; }
 
     public int Velocidade { get; set; }
 
-    //INTERNOS
+    public List<Rectangle> Intersections { get; set; }
     public bool CanMove { get; set; }
+
+    //INTERNOS
+    Rectangle velocidade = new();
 
     public Player()
     {
         Transform = new Transform();
         Sprite = new Sprite();
+        Intersections = new();
     }
 
     public Player(Vector2 position) : this()
@@ -46,26 +52,22 @@ public class Player : GameObject
     {
         base.Update(gameTime);
 
-        UpdateSprite();
-
-        var velocidade = CanMove ? Velocidade : 0;
-
         //KEYBOARD
         if (Keyboard.GetState().IsKeyDown(Keys.Up))
         {
-            Transform.Position.Y -= velocidade;
+            velocidade.X -= CanMove ? Velocidade : 0;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Down))
         {
-            Transform.Position.Y += velocidade;
+            velocidade.X += CanMove ? Velocidade : 0;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Left))
         {
-            Transform.Position.X -= velocidade;
+            velocidade.Y -= CanMove ? Velocidade : 0;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Right))
         {
-            Transform.Position.X += velocidade;
+            velocidade.Y += CanMove ? Velocidade : 0;
         }
 
         if (Keyboard.GetState().IsKeyDown(Keys.Up) || Keyboard.GetState().IsKeyDown(Keys.Down) || Keyboard.GetState().IsKeyDown(Keys.Left) || Keyboard.GetState().IsKeyDown(Keys.Right))
@@ -76,7 +78,60 @@ public class Player : GameObject
         //MOUSE
         if (Mouse.GetState().LeftButton == ButtonState.Pressed)
         {
-            
+
+        }
+
+        UpdateSprite();
+        Collision();
+    }
+
+    public void Collision()
+    {
+        Transform.Position.X += 1;
+        Intersections = GetIntersectingTilesHorizontal(Transform.Bounds);
+
+        foreach (var rect in Intersections)
+        {
+            if(collisionMap.TryGetValue(new Vector2(rect.X, rect.Y), out int _val))
+            {
+                Rectangle collision = new Rectangle(
+                    rect.X * displayTileSize,
+                    rect.Y * displayTileSize,
+                    displayTileSize,
+                    displayTileSize
+                );
+
+                if(velocidade.X > 0.0f)
+                {
+                    Transform.Position.X = collision.Left - Transform.Scale.X;
+                }
+                else if (velocidade.X < 0.0f)
+                {
+                    Transform.Position.X = collision.Right;
+                }
+            }
+        }
+
+        Intersections = GetIntersectingTilesVertical(Transform.Bounds);
+        foreach (var rect in Intersections)
+        {
+            if (collisionMap.TryGetValue(new Vector2(rect.X, rect.Y), out int _val))
+            {
+                
+            }
+        }
+    }
+
+    public void DebugPlayerIntersections()
+    {
+        foreach (var rect in Intersections)
+        {
+            DrawRectHollow(_spriteBatch, new Rectangle(
+                rect.X * displayTileSize,
+                rect.Y * displayTileSize,
+                displayTileSize,
+                displayTileSize
+            ), 4);
         }
     }
 }

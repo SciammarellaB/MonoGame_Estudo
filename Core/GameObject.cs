@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace Projeto_1.Core;
 
@@ -27,6 +28,11 @@ public class GameObject
 
     public virtual void Update(GameTime gameTime)
     {
-        
+        Transform.Bounds = new Rectangle(
+            (int)Transform.Position.X,
+            (int)Transform.Position.Y,
+            (int)Transform.Scale.X,
+            (int)Transform.Scale.Y
+        );
     }
 }

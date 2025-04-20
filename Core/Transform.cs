@@ -7,6 +7,8 @@ public class Transform
     public Vector2 Position;
     public Vector2 Scale;
 
+    public Rectangle Bounds;
+
     public Transform()
     {
 

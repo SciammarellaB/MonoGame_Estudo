@@ -4,33 +4,12 @@ using Microsoft.Xna.Framework.Input;
 using Projeto_1.Core;
 using Projeto_1.Objects;
 using System.Collections.Generic;
-using System.Linq;
 using static Projeto_1.Core.Resources;
 
 namespace Projeto_1.Levels
 {
     public class Sokoban : Game
     {
-        #region CORE
-        private GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
-        #endregion
-
-        #region OBJETOS
-        Player _player;
-        Block _box;
-
-        int displayTileSize = 64;
-        int textureTileSize = 16;
-        int textureTilesRow = 8;
-
-        Dictionary<Vector2, int> tileMap;
-        List<Block> _mapBlock;
-        
-        Dictionary<Vector2, int> collisionMap;
-
-        #endregion
-
         #region TEXTURES
         Texture2D atlasTexture;
         Texture2D collisionTexture;
@@ -46,22 +25,10 @@ namespace Projeto_1.Levels
 
         protected override void Initialize()
         {
+            // TODO: Add your initialization logic here
             ChangeScreenResolution(640, 640);
 
-            // TODO: Add your initialization logic here
             base.Initialize();
-        }
-
-        protected void ChangeScreenResolution(int width, int height)
-        {
-            _graphics.PreferredBackBufferWidth = width;
-            _graphics.PreferredBackBufferHeight = height;
-            _graphics.ApplyChanges();
-        }
-
-        protected int TileType(int x, int y)
-        {
-            return tileMap.FirstOrDefault(a => a.Key.X == x && a.Key.Y == y).Value;
         }
 
         private void LoadMap()
@@ -167,15 +134,13 @@ namespace Projeto_1.Levels
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            if (Keyboard.GetState().IsKeyDown(Keys.F1))
+                debugCollision = !debugCollision;
+
             // TODO: Add your update logic here
 
             //PLAYER
             _player.Update(gameTime);
-
-            foreach(var block in _mapBlock)
-            {
-                block.Update(gameTime);
-            }
 
             base.Update(gameTime);
         }
@@ -191,7 +156,11 @@ namespace Projeto_1.Levels
             foreach(var block in _mapBlock)
                 block.Sprite.Draw(_spriteBatch);
 
-            DebugMapCollision();
+            if (debugCollision)
+            {
+                DebugMapCollision();
+                _player.DebugPlayerIntersections();
+            }
 
             //PLAYER
             _player.Sprite.Draw(_spriteBatch);
